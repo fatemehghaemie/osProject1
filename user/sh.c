@@ -107,15 +107,15 @@ runcmd(struct cmd *cmd)
         len += strlen(ecmd->argv[i]);
         if (ecmd->argv[i + 1]) len += 1;
       }
-
+       // if chars are more than 512 print that massage
       if (len > 512) {
         printf("Message too long\n");
         exit(0);
       }
-
+        //if we had os, it has to be blue.
       for (int i = 1; ecmd->argv[i] != 0; i++) {
         if (contains_substring(ecmd->argv[i], "os")) {
-          printf("\x1b[34m%s\x1b[0m", ecmd->argv[i]); // آبی
+          printf("\x1b[34m%s\x1b[0m", ecmd->argv[i]); // the color blue for anything that has os in it.
         } else {
           printf("%s", ecmd->argv[i]);
         }

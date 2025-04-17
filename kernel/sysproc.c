@@ -5,6 +5,14 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+#include "custom_logger.h"
+//this is for the system call project and that massage should be seen in cossul if you type trigger_test
+uint64
+sys_trigger(void)
+{
+  log_message(LOG_INFO, "Triggered from user space!");
+  return 0;
+}
 
 uint64
 sys_exit(void)

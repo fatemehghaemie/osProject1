@@ -3,6 +3,7 @@
 #include "memlayout.h"
 #include "riscv.h"
 #include "defs.h"
+#include "custom_logger.h" //this is for the logger part of the project
 
 volatile static int started = 0;
 
@@ -28,9 +29,15 @@ main()
     iinit();         // inode table
     fileinit();      // file table
     virtio_disk_init(); // emulated hard disk
+    
     userinit();      // first user process
+
     __sync_synchronize();
     started = 1;
+// this is for checking our logger at the end of faze 1 and it will print after starting 1 &2 and before init
+    log_message(LOG_INFO, "Welcome to AUT MCS Principles of Operating Systems Course. This message is from 40213428 and 40213420");
+    log_message(LOG_WARN, "This is a test warning message for the custom logger");
+    log_message(LOG_ERROR, "This is a test error message for the custom logger");  
   } else {
     while(started == 0)
       ;
@@ -41,5 +48,6 @@ main()
     plicinithart();   // ask PLIC for device interrupts
   }
 
-  scheduler();        
+  scheduler();      
+
 }
