@@ -541,5 +541,4 @@ nulterminate(struct cmd *cmd)
     nulterminate(bcmd->cmd);
     break;
   }
-  return cmd;
-}
+  return cmd;}
