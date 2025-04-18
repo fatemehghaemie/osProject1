@@ -6,6 +6,7 @@
 #include "proc.h"
 #include "syscall.h"
 #include "defs.h"
+extern uint64 sys_trigger(void); //for system trigger
 
 // Fetch the uint64 at addr from the current process.
 int
@@ -126,6 +127,7 @@ static uint64 (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_trigger]    sys_trigger, //system trigger
 };
 
 void

@@ -1,5 +1,4 @@
 // Shell.
-
 #include "kernel/types.h"
 #include "user/user.h"
 #include "kernel/fcntl.h"
@@ -55,6 +54,26 @@ struct cmd *parsecmd(char*);
 void runcmd(struct cmd*) __attribute__((noreturn));
 
 // Execute cmd.  Never returns.
+// Returns 1 if needle is in haystack, 0 otherwise
+int contains_substring(const char *haystack, const char *needle) {
+    int hlen = strlen(haystack);
+    int nlen = strlen(needle);
+
+    if (nlen == 0 || hlen < nlen)
+        return 0;
+
+    for (int i = 0; i <= hlen - nlen; i++) {
+        int j;
+        for (j = 0; j < nlen; j++) {
+            if (haystack[i + j] != needle[j])
+                break;
+        }
+        if (j == nlen)
+            return 1;
+    }
+    return 0;
+}
+
 void
 runcmd(struct cmd *cmd)
 {
@@ -68,7 +87,7 @@ runcmd(struct cmd *cmd)
   if(cmd == 0)
     exit(1);
 
-  switch(cmd->type){
+ switch(cmd->type){
   default:
     panic("runcmd");
 
@@ -76,9 +95,40 @@ runcmd(struct cmd *cmd)
     ecmd = (struct execcmd*)cmd;
     if(ecmd->argv[0] == 0)
       exit(1);
+
+    if (strcmp(ecmd->argv[0], "!") == 0) {
+      if (ecmd->argv[1] == 0) {
+        fprintf(2, "Empty message\n");
+        exit(0);
+      }
+
+      int len = 0;
+      for (int i = 1; ecmd->argv[i] != 0; i++) {
+        len += strlen(ecmd->argv[i]);
+        if (ecmd->argv[i + 1]) len += 1;
+      }
+      if (len > 512) {
+        printf("Message too long\n");
+        exit(0);
+      }
+
+      for (int i = 1; ecmd->argv[i] != 0; i++) {
+        if (contains_substring(ecmd->argv[i], "os")) {
+          printf("\x1b[34m%s\x1b[0m", ecmd->argv[i]); // آبی
+        } else {
+          printf("%s", ecmd->argv[i]);
+        }
+
+        if (ecmd->argv[i + 1]) printf(" ");
+      }
+      printf("\n");
+      exit(0);
+    }
+
     exec(ecmd->argv[0], ecmd->argv);
     fprintf(2, "exec %s failed\n", ecmd->argv[0]);
     break;
+
 
   case REDIR:
     rcmd = (struct redircmd*)cmd;
@@ -134,7 +184,7 @@ runcmd(struct cmd *cmd)
 int
 getcmd(char *buf, int nbuf)
 {
-  write(2, "$ ", 2);
+  write(2, "$fatemeh-tina ", strlen("$fatemeh-tina ")); //here i changed it to our name and i didn't put a number so the program can do the math it self
   memset(buf, 0, nbuf);
   gets(buf, nbuf);
   if(buf[0] == 0) // EOF
@@ -490,5 +540,4 @@ nulterminate(struct cmd *cmd)
     nulterminate(bcmd->cmd);
     break;
   }
-  return cmd;
-}
+  return cmd;}
