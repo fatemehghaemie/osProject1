@@ -6,7 +6,6 @@
 #include "proc.h"
 #include "syscall.h"
 #include "defs.h"
-extern uint64 sys_trigger(void); //for system trigger
 
 // Fetch the uint64 at addr from the current process.
 int
@@ -102,6 +101,8 @@ extern uint64 sys_unlink(void);
 extern uint64 sys_link(void);
 extern uint64 sys_mkdir(void);
 extern uint64 sys_close(void);
+extern uint64 sys_thread(void); //   اضافه  شده 
+extern uint64 sys_jointhread(void); // اضافه شده 
 
 // An array mapping syscall numbers from syscall.h
 // to the function that handles the system call.
@@ -127,23 +128,41 @@ static uint64 (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
-[SYS_trigger]    sys_trigger, //system trigger
+[SYS_thread]      sys_thread, //اضافه  شده    
+[SYS_jointhread]  sys_jointhread, // اضافه شده 
 };
 
-void
-syscall(void)
-{
-  int num;
-  struct proc *p = myproc();
 
-  num = p->trapframe->a7;
-  if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
-    // Use num to lookup the system call function for num, call it,
-    // and store its return value in p->trapframe->a0
-    p->trapframe->a0 = syscalls[num]();
-  } else {
-    printf("%d %s: unknown sys call %d\n",
-            p->pid, p->name, num);
-    p->trapframe->a0 = -1;
-  }
-}
+
+
+//                    پاک کردن  تابع  syscall قبلی 
+
+//       اضافه کردن تابع syscall  فعلی 
+void 
+syscall(void) { 
+   int num; 
+   struct proc *p = myproc(); 
+   struct thread *oldt = p->current_thread; 
+   uint64 ret; 
+ 
+   num = p->trapframe->a7; 
+   if (num > 0 && num < NELEM(syscalls) && syscalls[num]) { 
+       // Use num to lookup the system call function for num, call it, 
+       // and store its return value in p->trapframe->a0 
+       ret = syscalls[num](); 
+   } else { 
+       printf("%d %s: unknown sys call %d\n", 
+              p->pid, p->name, num); 
+       ret = -1; 
+   } 
+ 
+   struct thread *newt = p->current_thread; 
+   if (oldt != newt) { 
+       if (!oldt) 
+           oldt = &p->threads[0]; 
+       oldt->trapframe->a0 = ret; 
+   } 
+   if (oldt == newt || p->current_thread == oldt) { 
+       p->trapframe->a0 = ret; 
+   } 
+} 

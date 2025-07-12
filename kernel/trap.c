@@ -41,33 +41,40 @@ usertrap(void)
   if((r_sstatus() & SSTATUS_SPP) != 0)
     panic("usertrap: not from user mode");
 
-  // send interrupts and exceptions to kerneltrap(),
-  // since we're now in the kernel.
+  // Send traps to kernelvec (we are now in kernel).
   w_stvec((uint64)kernelvec);
 
   struct proc *p = myproc();
   
-  // save user program counter.
+  // Save user program counter.
   p->trapframe->epc = r_sepc();
-  
+
   if(r_scause() == 8){
-    // system call
+    // System call.
 
     if(killed(p))
       exit(-1);
 
-    // sepc points to the ecall instruction,
-    // but we want to return to the next instruction.
+    // Move to the next instruction after the ecall.
     p->trapframe->epc += 4;
 
-    // an interrupt will change sepc, scause, and sstatus,
-    // so enable only now that we're done with those registers.
+    // Enable interrupts before syscall.
     intr_on();
 
     syscall();
+
   } else if((which_dev = devintr()) != 0){
-    // ok
+    // Device interrupt
+  } 
+  //  اضافه شده برای پشتیبانی از مدیریت تردهایی که خطای غیرمنتظره دارند
+  else if (p->current_thread && p->current_thread->id != p->pid) {
+    if (r_sepc() != r_stval() || r_scause() != 0xc) {
+      printf("usertrap(): thread unexpected scause 0x%lx pid=%d tid=%d\n", r_scause(), p->pid, p->current_thread->id);
+      printf("            sepc=0x%lx stval=0x%lx\n", r_sepc(), r_stval());
+    }
+    exitthread();  // فقط ترد را خاتمه بده
   } else {
+    // پردازه دچار خطای غیرمنتظره شده، کل پردازه را متوقف کن
     printf("usertrap(): unexpected scause 0x%lx pid=%d\n", r_scause(), p->pid);
     printf("            sepc=0x%lx stval=0x%lx\n", r_sepc(), r_stval());
     setkilled(p);
@@ -76,7 +83,7 @@ usertrap(void)
   if(killed(p))
     exit(-1);
 
-  // give up the CPU if this is a timer interrupt.
+  // Yield CPU if this was a timer interrupt.
   if(which_dev == 2)
     yield();
 

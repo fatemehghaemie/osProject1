@@ -8,6 +8,12 @@ struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
+struct thread;//  اضافه   شد  
+
+
+
+struct thread *initthread(struct proc *); //  اضافه 
+int thread_schd(struct proc *); //    اضافه 
 
 // bio.c
 void            binit(void);
@@ -107,6 +113,20 @@ int             either_copyout(int user_dst, uint64 dst, void *src, uint64 len);
 int             either_copyin(void *dst, int user_src, uint64 src, uint64 len);
 void            procdump(void);
 
+//                 ترد های اضافه  شده 
+
+
+void exitthread(void);
+void freethread(struct thread *t);
+struct thread* allocthread(uint64 start_thread, uint64 stack_address, uint64 arg);
+int jointhread(uint id);
+void sleepthread(int n, uint ticks0);
+
+
+
+
+
+
 // swtch.S
 void            swtch(struct context*, struct context*);
 
@@ -140,7 +160,7 @@ void            argaddr(int, uint64 *);
 int             fetchstr(uint64, char*, int);
 int             fetchaddr(uint64, uint64*);
 void            syscall();
-uint64 sys_trigger(void); // this is for the last project
+
 // trap.c
 extern uint     ticks;
 void            trapinit(void);
@@ -187,5 +207,3 @@ void            virtio_disk_intr(void);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))
-
-
