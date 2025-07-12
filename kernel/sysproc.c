@@ -5,14 +5,6 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
-#include "custom_logger.h"
-//this is for the system call project and that massage should be seen in cossul if you type trigger_test
-uint64
-sys_trigger(void)
-{
-  log_message(LOG_INFO, "Triggered from user space!");
-  return 0;
-}
 
 uint64
 sys_exit(void)
@@ -67,6 +59,14 @@ sys_sleep(void)
     n = 0;
   acquire(&tickslock);
   ticks0 = ticks;
+        //     این  شرط if  اضافه شده 
+
+ if (myproc()->current_thread) { 
+     release(&tickslock); 
+     sleepthread(n, ticks0); 
+     return 0; 
+ } 
+
   while(ticks - ticks0 < n){
     if(killed(myproc())){
       release(&tickslock);
@@ -98,4 +98,26 @@ sys_uptime(void)
   xticks = ticks;
   release(&tickslock);
   return xticks;
+}
+
+
+
+// اضافه شده 
+uint64 sys_thread(void) { 
+    uint64 start_thread, stack_address, arg; 
+    argaddr(0, &start_thread); 
+    argaddr(1, &stack_address); 
+    argaddr(2, &arg); 
+    struct thread *t = allocthread(start_thread, stack_address, arg); 
+    return t ? t->id : 0; 
+} 
+
+
+
+
+//       اضافه شده 
+uint64 sys_jointhread(void) { 
+    int id; 
+    argint(0, &id); 
+    return jointhread(id); 
 }
