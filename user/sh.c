@@ -107,7 +107,8 @@ runcmd(struct cmd *cmd)
         len += strlen(ecmd->argv[i]);
         if (ecmd->argv[i + 1]) len += 1;
       }
-      if (len > 512) {
+
+      if (len > 20) {
         printf("Message too long\n");
         exit(0);
       }
@@ -540,4 +541,5 @@ nulterminate(struct cmd *cmd)
     nulterminate(bcmd->cmd);
     break;
   }
-  return cmd;}
+  return cmd;
+}
