@@ -22,7 +22,6 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
-int trigger(void); //define function
 
 // ulib.c
 int stat(const char*, struct stat*);
@@ -39,7 +38,20 @@ int atoi(const char*);
 int memcmp(const void *, const void *, uint);
 void *memcpy(void *, const void *, uint);
 
-
 // umalloc.c
 void* malloc(uint);
 void free(void*);
+
+
+
+
+ 
+//      این دو تا تابع  هم اضافه کردم 
+int thread(void *start_thread, int *stack_address, void *arg); 
+int jointhread(int id);
+
+
+
+
+
+
