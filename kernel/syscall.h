@@ -20,8 +20,9 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
-#define SYS_thread       22 //     اضافه  شد
-#define SYS_jointhread   23 //    اضافه  شد  
+#define SYS_trigger 22 //defining system call number
+#define SYS_thread       23 //     اضافه  شد
+#define SYS_jointhread   24 //    اضافه  شد  
 
 
 
@@ -48,5 +49,5 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
-#define SYS_thread       22     //         اضافه شده 
-#define SYS_jointhread   23       //        اضافه شده 
+#define SYS_thread       23     //         اضافه شده 
+#define SYS_jointhread   24       //        اضافه شده 
