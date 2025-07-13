@@ -12,6 +12,7 @@ OBJS = \
   $K/string.o \
   $K/main.o \
   $K/vm.o \
+  $K/custom_logger.o \
   $K/proc.o \
   $K/swtch.o \
   $K/trampoline.o \
@@ -149,6 +150,7 @@ mkfs/mkfs: mkfs/mkfs.c $K/fs.h $K/param.h
 .PRECIOUS: %.o
 
 UPROGS=\
+    $U/_trigger_test\
 	$U/_cat\
 	$U/_echo\
 	$U/_forktest\
